@@ -32,8 +32,7 @@
 
             <div class="flex-1 max-w-2xl mx-8">
                 <div class="relative">
-                    <input id="searchInput" type="text" 
-                           placeholder="Etsi palvelua tai kaupunkia... (esim. maalaus Helsinki)"
+                    <input id="searchInput" type="text" placeholder="Etsi palvelua tai kaupunkia... (esim. csgo, wordpress, hevonen)"
                            class="w-full bg-gray-100 border-2 border-transparent focus:border-emerald-500 h-14 pl-14 pr-6 rounded-3xl text-lg focus:outline-none"
                            onkeyup="if(event.key==='Enter') performSearch()">
                     <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 text-2xl"></i>
@@ -47,8 +46,7 @@
                 <button onclick="toggleMap()" class="flex items-center gap-x-2 text-emerald-700 hover:text-emerald-800 font-medium">
                     <i class="fa-solid fa-map"></i><span>Kartta</span>
                 </button>
-                <button onclick="showPostModal()" 
-                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-3xl font-semibold flex items-center gap-x-2 shadow-lg">
+                <button onclick="showPostModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-3xl font-semibold flex items-center gap-x-2">
                     <i class="fa-solid fa-plus"></i> 
                     <span>MYY OSAAMISESI</span>
                 </button>
@@ -60,7 +58,7 @@
     <header class="hero-bg text-white py-20">
         <div class="max-w-7xl mx-auto px-6 text-center">
             <h1 class="text-6xl font-bold tracking-tighter mb-4">Löydä oikea osaaja.<br>Julkaiskaa taitosi.</h1>
-            <p class="text-2xl text-emerald-100">10 pääkategoriaa • Yli 100 ammattia • Kartalla</p>
+            <p class="text-2xl text-emerald-100">19 kategoriaa • Satoja palveluita • Kartalla</p>
         </div>
     </header>
 
@@ -79,41 +77,34 @@
             <div id="map"></div>
         </div>
 
-        <!-- PALVELUKORTIT -->
         <div id="gigsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </div>
 
-    <!-- TYÖNTEKIJÄN PROFIILI MODAL -->
+    <!-- PROFIILI MODAL -->
     <div id="profileModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] p-4">
         <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[95vh] overflow-auto profile-modal">
             <div class="sticky top-0 bg-white border-b z-10 px-8 py-5 flex justify-between items-center">
                 <div id="profileHeader" class="flex items-center gap-x-4"></div>
                 <button onclick="closeProfile()" class="text-4xl leading-none text-gray-400 hover:text-black">×</button>
             </div>
-            
             <div class="p-8">
-                <!-- Kuvat -->
                 <div class="mb-10">
-                    <h3 class="font-semibold text-xl mb-4 flex items-center gap-x-2"><i class="fa-solid fa-images"></i> Työnäytteet</h3>
+                    <h3 class="font-semibold text-xl mb-4">Työnäytteet</h3>
                     <div id="workImages" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
                 </div>
-
-                <!-- Kuvaus -->
-                <div id="profileDesc" class="prose mb-10"></div>
-
-                <!-- Arvostelut -->
+                <div id="profileDesc" class="prose mb-10 text-gray-700"></div>
                 <div>
-                    <h3 class="font-semibold text-xl mb-6 flex items-center gap-x-2"><i class="fa-solid fa-star"></i> Asiakasarvostelut</h3>
+                    <h3 class="font-semibold text-xl mb-6">Asiakasarvostelut</h3>
                     <div id="reviewsContainer" class="space-y-8"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Kategoria & Julkaisu modalit (sama kuin ennen) -->
+    <!-- Muut modalit -->
     <div id="categoryModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]">
-        <div class="bg-white rounded-3xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="px-8 py-6 border-b flex justify-between">
+        <div class="bg-white rounded-3xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="px-8 py-6 border-b flex justify-between items-center">
                 <h2 class="text-3xl font-semibold">Kaikki kategoriat</h2>
                 <button onclick="hideCategoryModal()" class="text-4xl">×</button>
             </div>
@@ -133,25 +124,35 @@
     </div>
 
     <script>
-        const categories = [ /* sama 10 kategoriaa kuin edellisessä */ 
-            {name:"Rakentaminen & Remontti", emoji:"🏗️", subs:["Maalaus","Tapetointi","Kylpyhuoneremontti","Keittiöremontti","Lattia-asennus","Sähkötyöt","Putkityöt","Saunaremontti","Parvekeremontti","Rakentaminen"]},
-            {name:"Kodin huolto & Siivous", emoji:"🧹", subs:["Kotisiivous","Muuttosiivous","Ikkunoiden pesu","Puutarhanhoito","Lumen luonti","Kodinkoneiden korjaus","Vesivahinkokorjaus","Kodin yleishuolto","Mattojen pesu","Roskien vienti"]},
-            {name:"IT & Tekniikka", emoji:"💻", subs:["Nettisivujen tekeminen","Tietokoneen korjaus","Vianhaku","Tietokoneen kasaus","Ohjelmointi","Puhelimen korjaus","Verkon asennus","IT-tuki","Data-analyysi","Ohjelmistopäivitykset"]},
-            {name:"Taide & Luovuus", emoji:"🎨", subs:["Muotokuvien piirtäminen","Sävellys","Laulun kirjoitus","Valokuvaus","Videokuvaus","Graafinen suunnittelu","Logon suunnittelu","Maalaus tilauksesta","Käsityöt","Tanssiopetus"]},
-            {name:"Opetus & Valmennus", emoji:"📚", subs:["Matematiikan opetus","Kielten opetus","Soitonopetus","Urheiluvalmennus","Jooga","Koodauskoulutus","Valokuvauskurssi","Ruoanlaitto-opetus","Yo-kurssit","Autokoulu"]},
-            {name:"Terveys & Hyvinvointi", emoji:"🧘", subs:["Hieronta","Personal trainer","Fysioterapia","Ravintovalmennus","Hiusten leikkaus","Meikkaus","Parturi","Psyykkinen valmennus","Lifestyle coaching","Rentoutus"]},
-            {name:"Kuljetus & Liikenne", emoji:"🚚", subs:["Muuttoapu","Tavarakuljetus","Auton korjaus","Renkaiden vaihto","Auton pesu","Kuljetusapu","Venekuljetus","Moottoripyörähuolto","Polkupyöräkorjaus","Matkustajakuljetus"]},
-            {name:"Juridiikka & Hallinto", emoji:"⚖️", subs:["Asunto-oikeus","Perheoikeus","Sopimusten laadinta","Veroneuvonta","Kirjanpito","Yrityksen perustus","Perintöasiat","Immateriaalioikeus","Tilitoimisto","Yritysoikeus"]},
-            {name:"Markkinointi & Myynti", emoji:"📣", subs:["Some-mainonta","Google Ads","Sisällöntuotanto","Brändäys","SEO","Videomainos","Myyntivalmennus","Some-strategia","Sähköpostimarkkinointi","Tuotekuvaus"]},
-            {name:"Eläimet & Muut", emoji:"🐶", subs:["Koiran ulkoilutus","Lemmikkien hoito","Eläinlääkäri kotiin","Lemmikkien trimmaus","Eläinten koulutus","Hevoshuolto","Eläinfotografia","Avioliittoneuvoja","Häät","Juhlapalvelut"]}
+        const categories = [ /* 19 kategoriaa */ 
+            {name:"Rakentaminen & remontointi", emoji:"🏗️", subs:["Keittiöremontti","Kylpyhuoneremontti","Maalaus","Laatoitus","Parketti","Terassi","Sähkötyöt","Putkityöt","Kattotyöt","Piharakentaminen"]},
+            {name:"IT & ohjelmistokehitys", emoji:"💻", subs:["Verkkosivut","Verkkokauppa","Mobiilisovellus","API-kehitys","Bugikorjaus","WordPress","Shopify","AI-chatbot","Automaatio","Tietoturva"]},
+            {name:"Design & visuaalinen", emoji:"🎨", subs:["Logosuunnittelu","Brändi-ilme","UI/UX","Esitteet","Pakkausdesign","Some-grafiikka","Infografiikka","Kuvankäsittely","Presentaatiot","Bannerit"]},
+            {name:"Media & sisältö", emoji:"📸", subs:["Valokuvaus","Videokuvaus","Editointi","Blogitekstit","Copywriting","Tuotekuvaukset","Podcast-editointi","Some-sisältö","Drone-kuvaus","Kuvapankki"]},
+            {name:"Musiikki & ääni", emoji:"🎧", subs:["Biisituotanto","Miksaus","Voice-over","Jinglet","Taustamusiikki","Podcast","Studiopalvelu","DJ","Sävellys","Äänisuunnittelu"]},
+            {name:"Markkinointi & myynti", emoji:"📣", subs:["SEO","Google Ads","Some-mainonta","Sähköposti","Sisältöstrategia","Brändistrategia","Lead generation","Myyntitekstit","Analytiikka","CRO"]},
+            {name:"Liiketoiminta & konsultointi", emoji:"📊", subs:["Liiketoimintasuunnitelma","Markkina-analyysi","Hinnoittelu","Startup-neuvonta","Prosessit","HR","Pitch deck","Kasvustrategia","Operatiivinen","Rahoitus"]},
+            {name:"Juridiset palvelut", emoji:"⚖️", subs:["Sopimukset","Sopimusten tarkistus","Yrityksen perustaminen","IPR","Työoikeus","Riidanratkaisu","GDPR","Vuokrasopimus","Velkomus","Yritysjuridiikka"]},
+            {name:"Talous & kirjanpito", emoji:"💰", subs:["Kirjanpito","Tilinpäätös","Veroilmoitus","Palkanlaskenta","Laskutus","Raportointi","Budjetointi","Kassavirta","ALV","Talouskonsultointi"]},
+            {name:"Opetus & koulutus", emoji:"📚", subs:["Matematiikka","Kielet","Ohjelmointi","Musiikki","Urheiluvalmennus","Pelivalmennus (CS:GO jne)","Pääsykokeet","Yrityskoulutus","Online-kurssit","Oppimisvalmennus"]},
+            {name:"Käännökset & kielet", emoji:"🌍", subs:["EN–FI","FI–EN","SE–FI","Oikoluku","Editointi","Lokalisointi","Tekstitys","Transkriptio","SEO-käännös","Virallinen käännös"]},
+            {name:"Hoiva & hyvinvointi", emoji:"🧘", subs:["Lastenhoito","Vanhustenhoito","Avustaja","Personal trainer","Ravinto","Hieronta","Jooga","Coaching","Fysioterapia","Kotikäynti"]},
+            {name:"Eläinpalvelut", emoji:"🐶", subs:["Koiran ulkoilutus","Lemmikkien hoito","Hevosten hoito","Eläinkoulutus","Lemmikkivahti","Trimmaus","Eläinkuljetus","Tallityöt","Eläinvalokuvaus","Ruokinta"]},
+            {name:"Tapahtumat & viihde", emoji:"🎉", subs:["DJ","Bändi","Juontaja","Tapahtumatuotanto","Ääni & valo","Lasten viihde","Taikuri","Catering","Yritystapahtuma","Häät"]},
+            {name:"Kuljetus & logistiikka", emoji:"🚚", subs:["Muutto","Pienkuljetus","Huonekalut","Varastointi","Jakelu","Nouto","Rakennuskuljetus","Kierrätys","Lentokenttä","Courier"]},
+            {name:"Siivous & kotipalvelut", emoji:"🧹", subs:["Kotisiivous","Toimisto","Ikkunat","Muuttosiivous","Suursiivous","Pyykki","Silitys","Pihatyöt","Lumityöt","Roskat"]},
+            {name:"Korjaus & huolto", emoji:"🔧", subs:["Kodinkoneet","Puhelin","Tietokone","Polkupyörä","Auto","Elektroniikka","Huonekalut","Lukko","Ilmastointi","Asennus"]},
+            {name:"Kauneus & terveys", emoji:"💄", subs:["Hiukset","Värjäys","Meikkaus","Kynnet","Iho","Ripset","Parturi","Hieronta","Kosmetologi","Spa"]},
+            {name:"Muut palvelut", emoji:"🧩", subs:["Virtuaaliassistentti","Data entry","Testikäyttäjä","Mystery shopping","Lahjapalvelu","Personoidut videot","Sukututkimus","Astrologia","Erikoistyöt","Muut"]}
         ]
 
         let allGigs = []
+        let map = null
 
         function generateGigs() {
             allGigs = []
             let id = 1
-            categories.forEach((cat, catIndex) => {
+            categories.forEach((cat) => {
                 cat.subs.forEach(sub => {
                     allGigs.push({
                         id: id++,
@@ -161,22 +162,15 @@
                         price: ["Alkaen 49 €","Alkaen 89 €","Alkaen 129 €","Alkaen 35 €/h","Alkaen 199 €"][Math.floor(Math.random()*5)],
                         rating: (4.5 + Math.random()*0.5).toFixed(1),
                         reviewsCount: Math.floor(Math.random()*80) + 12,
-                        seller: ["Juha Mäkinen","Anna Korhonen","Pekka Tammela","Laura Virtanen","Mikko Rantanen"][catIndex % 5],
+                        seller: ["Juha Mäkinen","Anna Korhonen","Pekka Tammela","Laura Virtanen","Mikko Rantanen"][Math.floor(Math.random()*5)],
                         location: ["Helsinki","Espoo","Tampere","Turku","Oulu","Jyväskylä"][Math.floor(Math.random()*6)],
                         lat: 59.5 + Math.random()*7,
                         lng: 20 + Math.random()*12,
                         emoji: cat.emoji,
-                        desc: `Ammattitaitoinen ${sub.toLowerCase()}. Yli 10 vuoden kokemus. Asiakkaat kehuvat laatua ja luotettavuutta.`,
-                        images: [
-                            `https://picsum.photos/id/${100+id}/800/600`,
-                            `https://picsum.photos/id/${200+id}/800/600`,
-                            `https://picsum.photos/id/${300+id}/800/600`
-                        ],
-                        reviews: [
-                            {name:"Sari L.", stars:5, text:"Erinomainen työ! Suosittelen lämpimästi.", date:"2 pv sitten"},
-                            {name:"Timo K.", stars:5, text:"Ammattitaitoinen ja ystävällinen. Hinta-laatusuhde loistava.", date:"1 vk sitten"},
-                            {name:"Minna P.", stars:4, text:"Tuli hyvin tehtyä. Pieni viive aikataulussa mutta lopputulos täydellinen.", date:"3 vk sitten"}
-                        ]
+                        tags: [sub.toLowerCase(), cat.name.toLowerCase()],
+                        desc: `Ammattitaitoinen ${sub.toLowerCase()}.`,
+                        images: [`https://picsum.photos/id/${100+id}/800/500`, `https://picsum.photos/id/${200+id}/800/500`],
+                        reviews: [{name:"Sari L.", stars:5, text:"Erinomainen!", date:"2 pv sitten"}]
                     })
                 })
             })
@@ -200,12 +194,12 @@
                     <div class="h-2 bg-emerald-500"></div>
                     <div class="p-6">
                         <div class="text-6xl mb-4">${g.emoji}</div>
-                        <h4 class="font-semibold text-lg leading-tight">${g.title}</h4>
+                        <h4 class="font-semibold text-lg">${g.title}</h4>
                         <p class="text-emerald-600 font-medium mt-1">${g.price}</p>
                         <p class="text-sm text-gray-500 mt-4">${g.seller} • ${g.location}</p>
                         <div class="flex justify-between mt-6">
                             <span class="text-amber-400 text-sm">★ ${g.rating} (${g.reviewsCount})</span>
-                            <span class="text-xs bg-emerald-100 text-emerald-700 px-4 py-1 rounded-3xl">Katso profiili</span>
+                            <span class="text-xs bg-emerald-100 text-emerald-700 px-4 py-1 rounded-3xl">Avaa profiili →</span>
                         </div>
                     </div>
                 </div>
@@ -216,40 +210,27 @@
             const gig = allGigs.find(g => g.id === id)
             if (!gig) return
 
-            // Header
             document.getElementById('profileHeader').innerHTML = `
                 <div class="text-5xl">${gig.emoji}</div>
                 <div>
                     <h2 class="text-2xl font-semibold">${gig.title}</h2>
-                    <p class="text-emerald-600">${gig.seller} • ${gig.location} • ${gig.price}</p>
-                    <p class="text-amber-400">★ ${gig.rating} (${gig.reviewsCount} arvostelua)</p>
+                    <p class="text-emerald-600">${gig.seller} • ${gig.location}</p>
+                    <p class="text-amber-400">★ ${gig.rating} (${gig.reviewsCount})</p>
                 </div>
             `
 
-            // Kuvat
-            let imgHTML = ''
-            gig.images.forEach(src => {
-                imgHTML += `<img src="${src}" class="rounded-2xl w-full aspect-video object-cover">`
-            })
-            document.getElementById('workImages').innerHTML = imgHTML
+            document.getElementById('workImages').innerHTML = gig.images.map(src => 
+                `<img src="${src}" class="rounded-2xl w-full aspect-video object-cover">`
+            ).join('')
 
-            // Kuvaus
-            document.getElementById('profileDesc').innerHTML = `<p class="text-lg leading-relaxed">${gig.desc}</p>`
+            document.getElementById('profileDesc').innerHTML = `<p class="text-lg">${gig.desc}</p>`
 
-            // Arvostelut
-            let revHTML = ''
-            gig.reviews.forEach(r => {
-                revHTML += `
+            document.getElementById('reviewsContainer').innerHTML = gig.reviews.map(r => `
                 <div class="border-l-4 border-emerald-400 pl-6">
-                    <div class="flex justify-between">
-                        <div><strong>${r.name}</strong></div>
-                        <div class="text-amber-400">${'★'.repeat(r.stars)}</div>
-                    </div>
-                    <p class="mt-2 text-gray-700">${r.text}</p>
-                    <p class="text-xs text-gray-400 mt-3">${r.date}</p>
-                </div>`
-            })
-            document.getElementById('reviewsContainer').innerHTML = revHTML
+                    <div class="flex justify-between"><strong>${r.name}</strong><span class="text-amber-400">${'★'.repeat(r.stars)}</span></div>
+                    <p class="mt-2">${r.text}</p>
+                </div>
+            `).join('')
 
             document.getElementById('profileModal').classList.remove('hidden')
             document.getElementById('profileModal').classList.add('flex')
@@ -260,67 +241,47 @@
             document.getElementById('profileModal').classList.remove('flex')
         }
 
-        // Kartta (korjattu)
-        let map
-        function initMap() {
-            map = L.map('map', {zoomControl:true}).setView([64.5, 25], 6)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map)
-            updateMarkers(allGigs)
-        }
-
-        function updateMarkers(gigs) {
-            if (!map) return
-            map.eachLayer(layer => { if (layer instanceof L.Marker) map.removeLayer(layer) })
-            
-            gigs.forEach(g => {
-                if (!g.lat || !g.lng) return
-                const marker = L.marker([g.lat, g.lng]).addTo(map)
-                marker.bindPopup(`
-                    <div class="text-center p-2">
-                        <div class="text-3xl">${g.emoji}</div>
-                        <b>${g.title}</b><br>
-                        <small>${g.seller} • ${g.location}</small><br>
-                        <span class="text-emerald-600">${g.price}</span><br>
-                        <button onclick="openProfile(${g.id});map.closePopup()" class="mt-3 text-xs bg-emerald-600 text-white px-5 py-2 rounded-3xl">Avaa profiili</button>
-                    </div>
-                `)
-            })
+        function performSearch() {
+            const term = document.getElementById('searchInput').value.toLowerCase().trim()
+            let filtered = allGigs
+            if (term) {
+                filtered = allGigs.filter(g => 
+                    g.title.toLowerCase().includes(term) || 
+                    g.seller.toLowerCase().includes(term) || 
+                    g.location.toLowerCase().includes(term) ||
+                    g.tags.some(t => t.includes(term))
+                )
+            }
+            document.getElementById('resultsTitle').innerHTML = term ? `Tulokset "${term}" (${filtered.length})` : `Suosituimmat palvelut (${allGigs.length})`
+            renderGigs(filtered)
         }
 
         function toggleMap() {
-            const cont = document.getElementById('mapContainer')
-            cont.classList.toggle('hidden')
-            if (!cont.classList.contains('hidden') && !map) initMap()
-            else if (map) updateMarkers(allGigs)
+            const container = document.getElementById('mapContainer')
+            container.classList.toggle('hidden')
+            
+            if (!container.classList.contains('hidden') && !map) {
+                map = L.map('map').setView([64.5, 25], 6)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(map)
+
+                allGigs.forEach(g => {
+                    if (g.lat && g.lng) {
+                        const marker = L.marker([g.lat, g.lng]).addTo(map)
+                        marker.bindPopup(`<b>${g.title}</b><br>${g.seller} • ${g.location}<br><button onclick="openProfile(${g.id});map.closePopup()" class="text-xs bg-emerald-600 text-white px-3 py-1 rounded-2xl mt-2">Avaa profiili</button>`)
+                    }
+                })
+            }
         }
 
-        // Muut toiminnot (sama kuin ennen)
-        function performSearch() { /* ... */ const term = document.getElementById('searchInput').value.toLowerCase()
-            const filtered = allGigs.filter(g => 
-                g.title.toLowerCase().includes(term) || g.seller.toLowerCase().includes(term) || g.location.toLowerCase().includes(term)
-            )
-            document.getElementById('resultsTitle').innerHTML = `Tulokset "${term}" (${filtered.length})`
-            renderGigs(filtered)
-            if (map) updateMarkers(filtered)
-        }
-
-        function selectMainCategory(name) {
-            const filtered = allGigs.filter(g => g.category === name)
-            document.getElementById('resultsTitle').innerHTML = `${name} (${filtered.length})`
-            renderGigs(filtered)
-            hideCategoryModal()
-        }
-
-        function showCategoryExplorer() { /* sama kuin ennen */ 
+        // Muut toiminnot (lyhennettynä)
+        function showCategoryExplorer() { /* ... */ 
             let html = ''
             categories.forEach(cat => {
                 html += `<div class="mb-10"><div class="flex items-center gap-3 mb-4"><span class="text-4xl">${cat.emoji}</span><h3 class="text-2xl font-semibold">${cat.name}</h3></div>`
                 html += `<div class="grid grid-cols-2 md:grid-cols-4 gap-3">`
-                cat.subs.forEach(sub => {
-                    html += `<div onclick="searchSub('${sub}')" class="bg-gray-50 hover:bg-emerald-50 p-4 rounded-2xl cursor-pointer text-sm">${sub}</div>`
-                })
+                cat.subs.forEach(sub => html += `<div onclick="searchSub('${sub}')" class="bg-gray-50 hover:bg-emerald-50 p-4 rounded-2xl cursor-pointer">${sub}</div>`)
                 html += `</div></div>`
             })
             document.getElementById('categoryContent').innerHTML = html
@@ -340,17 +301,27 @@
             hideCategoryModal()
         }
 
-        function publishGig() { alert("✅ Ilmoitus julkaistu!"); hidePostModal(); }
+        function selectMainCategory(name) {
+            const filtered = allGigs.filter(g => g.category === name)
+            document.getElementById('resultsTitle').innerHTML = `${name} (${filtered.length})`
+            renderGigs(filtered)
+            hideCategoryModal()
+        }
+
         function showPostModal() {
             const sel = document.getElementById('modalCategory')
             sel.innerHTML = categories.map(c => `<option>${c.name}</option>`).join('')
             document.getElementById('postModal').classList.remove('hidden')
             document.getElementById('postModal').classList.add('flex')
         }
-        function hidePostModal() { document.getElementById('postModal').classList.add('hidden'); document.getElementById('postModal').classList.remove('flex') }
+        function publishGig() { alert("✅ Ilmoitus julkaistu!"); hidePostModal(); }
+        function hidePostModal() {
+            document.getElementById('postModal').classList.add('hidden')
+            document.getElementById('postModal').classList.remove('flex')
+        }
         function clearSearch() {
             document.getElementById('searchInput').value = ''
-            document.getElementById('resultsTitle').innerHTML = 'Suosituimmat palvelut'
+            document.getElementById('resultsTitle').innerHTML = `Suosituimmat palvelut (${allGigs.length})`
             renderGigs(allGigs)
         }
 
